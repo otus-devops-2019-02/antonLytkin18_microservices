@@ -1,5 +1,5 @@
 REPOSITORY                                           TAG                 IMAGE ID            CREATED             SIZE
-<none>                                               <none>              924b7294f926        4 minutes ago       117MB
+yourname/ubuntu-tmp-file                             latest              63b9c9bcef50        4 seconds ago       117MB
 antonlytkin/otus-ci                                  latest              2bef8e40b94e        4 weeks ago         660MB
 hello-world                                          latest              fce289e99eb9        5 months ago        1.84kB
 ubuntu                                               16.04               b0ef3016420a        5 months ago        117MB
