@@ -1,0 +1,12 @@
+REPOSITORY                                           TAG                 IMAGE ID            CREATED             SIZE
+<none>                                               <none>              924b7294f926        4 minutes ago       117MB
+antonlytkin/otus-ci                                  latest              2bef8e40b94e        4 weeks ago         660MB
+hello-world                                          latest              fce289e99eb9        5 months ago        1.84kB
+ubuntu                                               16.04               b0ef3016420a        5 months ago        117MB
+php                                                  7.1-fpm             92bb295e7d69        19 months ago       383MB
+mariadb                                              latest              d29cee62e770        19 months ago       398MB
+nginx                                                stable              db5c5ed76327        19 months ago       108MB
+busybox                                              latest              6ad733544a63        19 months ago       1.13MB
+antonlytkin/otus-ci                                  <none>              88cfebce8a81        20 months ago       201MB
+docker/compose                                       1.8.0               89188432ef03        2 years ago         59.1MB
+nginx                                                1.9                 c8c29d842c09        3 years ago         183MB
