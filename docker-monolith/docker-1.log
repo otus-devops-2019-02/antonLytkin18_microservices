@@ -1,0 +1,35 @@
+REPOSITORY                                           TAG                 IMAGE ID            CREATED             SIZE
+yourname/ubuntu-tmp-file                             latest              63b9c9bcef50        4 seconds ago       117MB
+antonlytkin/otus-ci                                  latest              2bef8e40b94e        4 weeks ago         660MB
+hello-world                                          latest              fce289e99eb9        5 months ago        1.84kB
+ubuntu                                               16.04               b0ef3016420a        5 months ago        117MB
+php                                                  7.1-fpm             92bb295e7d69        19 months ago       383MB
+mariadb                                              latest              d29cee62e770        19 months ago       398MB
+nginx                                                stable              db5c5ed76327        19 months ago       108MB
+busybox                                              latest              6ad733544a63        19 months ago       1.13MB
+antonlytkin/otus-ci                                  <none>              88cfebce8a81        20 months ago       201MB
+docker/compose                                       1.8.0               89188432ef03        2 years ago         59.1MB
+nginx                                                1.9                 c8c29d842c09        3 years ago         183MB
+
+1. Образ - набор слоев. Каждый слой представляет собой отдельную инструкцию в Dockerfile'е.
+Все слои, кроме самого последнего, доступны только для чтения.
+
+`$ docker inspect antonlytkin/otus-ci`
+
+````
+"Layers": [
+    "sha256:2aebd096e0e237b447781353379722157e6c2d434b9ec5a0d63f2a6f07cf90c2",
+    "sha256:9658525fc0608b9a0a346d92e3eb48c76fef8cb24176aec7db2a0015db91ab71",
+    "sha256:8d1ce5c7dd64670d5e311ee8a1cad2ee228a50dcefaa3ad4f096cae1365fabf1",
+    "sha256:4d3f12cb217d84f5b53c4266378fb8d890d10106bd350eeae2d735498f1d3c8b",
+    "sha256:0ba76fab2feb58cbdcd57971bfbd1c0a9f56dd2d6c07d94219c1130379b493dc",
+    "sha256:1c8fa449c9aebf8183c4081df5405b454d4d6c71aebbc82e7b816499a853577e",
+    "sha256:acb30f1df3e30b0053852963cdd473f1bbaf5fd74749bde0d19ab70cd86a879c",
+    "sha256:3900d09d4846dc9c9d4b7f3fe1bd90d97fa16dcca83ac990309f46f4518a50b3"
+]
+````
+
+2. Контейнер - инстанс образа, построенный на его основе. При создании контейнера, docker
+берет образ и добавляет доступный для записи верхний слой. Все последующие изменения
+хранятся именно в этом слое. При удалении контейнера, удаляется только верхний слой,
+а все остальные, доступные только для чтения, остаются нетронутыми.
