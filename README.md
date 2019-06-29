@@ -44,6 +44,7 @@ $ gcloud compute firewall-rules create reddit-app \
 2.1. Перед сборкой образа `packer`'ом, необходимо скачать сторонние роли `ansible`:
 
 `$ ansible-galaxy install -r docker-monolith/infra/ansible/requirements.yml`
+
 `$ packer build -var-file docker-monolith/infra/packer/variables.json docker-monolith/infra/packer/docker.json`
 
 2.2. Для создания инстанса с установленным `docker`'ом, необходимо воспользоваться командой:
