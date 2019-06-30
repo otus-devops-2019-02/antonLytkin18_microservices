@@ -54,3 +54,21 @@ $ gcloud compute firewall-rules create reddit-app \
 2.3. Для деплоя приложения необходимо выполнить команду:
 
 `$ cd docker-monolith/infra/ansible/ && ansible-playbook playbooks/deploy.yml`
+
+### Домашнее задание №14
+
+1. Для переопределения переменных окружения, заданных в `Dockerfile`'е, необходимо воспользоваться параметром `-e`:
+
+````
+$ docker run -d --network=reddit --network-alias=post_db_another --network-alias=comment_db_another mongo:latest
+$ docker run -d --network=reddit --network-alias=post_another -e POST_DATABASE_HOST=post_db_another antonlytkin/post:1.0
+$ docker run -d --network=reddit --network-alias=comment_another -e COMMENT_DATABASE_HOST=comment_db_another antonlytkin/comment:1.0
+$ docker run -d --network=reddit -p 9292:9292 -e POST_SERVICE_HOST=post_another -e COMMENT_SERVICE_HOST=comment_another antonlytkin/ui:1.0
+````
+
+2. Для создания отдельного хранилища и подключения его к контейнеру, необходимо выполнить команды:
+
+````
+$ docker volume create reddit_db
+$ docker run -d --network=reddit --network-alias=post_db_another --network-alias=comment_db_another -v reddit_db:/data/db mongo:latest
+```` 
