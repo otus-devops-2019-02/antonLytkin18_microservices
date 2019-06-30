@@ -1,0 +1,7 @@
+- name: Run the container
+  docker_container:
+    name: docker-reddit
+    image: antonlytkin/otus-reddit:1.0
+    ports:
+      - "9292:9292"
+    state: started

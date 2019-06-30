@@ -1,0 +1,7 @@
+{
+  "project_id": "gcp-project-id",
+  "image_family": "gcp-source-image-family",
+  "source_image_family": "gcp-source-image-family",
+  "app_image_family": "reddit-app-base",
+  "db_image_family": "reddit-db-base"
+}
