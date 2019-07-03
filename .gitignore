@@ -5,3 +5,7 @@ variables.json
 *.tfstate.backup
 *.tfvars
 .terraform/
+
+#third-party ansible roles:
+
+geerlingguy.docker
