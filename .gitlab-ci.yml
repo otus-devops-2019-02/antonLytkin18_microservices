@@ -22,8 +22,9 @@ build_job:
 test_unit_job:
   stage: test
   script:
-    - docker run --rm --name reddit_unit_test -d $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+    - docker run --name reddit_unit_test -d $CI_REGISTRY_USER/otus-reddit:$VERSION
     - docker exec -i reddit_unit_test ruby -Creddit simpletest.rb
+    - docker rm -f reddit_unit_test
 
 test_integration_job:
   stage: test
