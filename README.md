@@ -94,3 +94,59 @@ volumes:
 ````dockerfile
 command: ["puma", "--debug", "-w", "2"]
 ````
+
+### Домашнее задание №16
+
+1. Для создания инстанса под gitlab, необходимо выполнить команды:
+````bash
+$ export GOOGLE_PROJECT=docker-245017
+$ docker-machine create --driver google \
+    --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts \
+    --google-machine-type n1-standard-1 \
+    --google-zone europe-west1-b \
+    gitlab-host
+````
+2. Открываем необходимые для `Gitlab`'а порты:
+````bash
+$ gcloud compute firewall-rules create gitlab-app \
+     --allow tcp:80,tcp:443,tcp:2222\
+     --target-tags=docker-machine \
+     --description="Allow Gitlab connections" \
+     --direction=INGRESS 
+````
+
+3. Добавляем переменную окружения, хранящую `ip` инстанса. Будет использоваться в `docker-compose.yml`:
+`$ export GITLAB_HOST=$(docker-machine ip gitlab-host)`
+
+4. Запускаем контейнеры:
+````bash
+$ eval $(docker-machine env gitlab-host)
+$ docker-compose up -d
+````
+
+5. Запускаем контейнер с `runner`'ом, который будет запускать команды для всех стадий `pipeline`'а:
+````bash
+$ docker run -d --name gitlab-runner --restart always \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    gitlab/gitlab-runner:latest 
+````
+
+6. Запускаем `runner` и вводим все запрашиваемые параметры:
+
+`$ docker exec -it gitlab-runner gitlab-runner register --run-untagged --locked=false`
+
+7. Для того, чтобы `runner` смог поднять контейнер в `docker`'е, необходимо сделать доступным файл сокета путем замены строк в файле конфигурации `runner`'а:
+
+`$ sed -i 's/volumes = \["\/cache"]/volumes = ["\/var\/run\/docker.sock:\/var\/run\/docker.sock", "\/cache"]/g' /srv/gitlab-runner/config/config.toml`
+
+8. Добавляем переменные, используемые в `.gitlab.ci.yml` в настройках `Gitlab`'а:
+````dotenv
+DOCKER_HUB_USERNAME
+DOCKER_HUB_PASSWORD
+VERSION
+SSH_PRIVATE_KEY
+STAGING_IP
+````
+
+9. При каждом пуше будет запущена сборка `docker`-образа и по требованию деплой окружения `stage`.
