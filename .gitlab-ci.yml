@@ -21,10 +21,9 @@ build_job:
 
 test_unit_job:
   stage: test
-  services:
-    - mongo:latest
   script:
-    - ruby simpletest.rb
+    - docker run --rm --name reddit_unit_test -d $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+    - docker exec -i test_unit ruby -Creddit simpletest.rb
 
 test_integration_job:
   stage: test
