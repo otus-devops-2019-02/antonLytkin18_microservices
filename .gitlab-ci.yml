@@ -15,13 +15,13 @@ before_script:
   - cd reddit
   - bundle install
 
-build_job:
-  stage: build
-  script:
-    - docker build -t reddit:$VERSION reddit/
-    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-    - docker tag reddit:$VERSION $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
-    - docker push $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+#build_job:
+#  stage: build
+#  script:
+#    - docker build -t reddit:$VERSION reddit/
+#    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+#    - docker tag reddit:$VERSION $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+#    - docker push $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
 
 test_unit_job:
   stage: test
