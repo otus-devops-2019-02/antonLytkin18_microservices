@@ -1,4 +1,4 @@
-image: ruby:2.4.2
+image: docker:latest
 
 stages:
   - build
@@ -9,6 +9,8 @@ stages:
 
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
+  VERSION: '1.1'
+  DOCKER_HUB_USERNAME: antonlytkin
 
 before_script:
   - cd reddit
@@ -17,7 +19,10 @@ before_script:
 build_job:
   stage: build
   script:
-    - echo 'Building'
+    - docker build -t reddit:$VERSION reddit/
+    - docker login -u $DOCKER_HUB_USERNAME -p $CI_REGISTRY_PASSWORD
+    - docker tag reddit:$VERSION $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+    - docker push $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
 
 test_unit_job:
   stage: test
