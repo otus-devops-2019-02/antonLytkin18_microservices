@@ -1,7 +1,4 @@
-image: docker:dind
-
-services:
-  - docker:dind
+image: docker:latest
 
 stages:
   - build
