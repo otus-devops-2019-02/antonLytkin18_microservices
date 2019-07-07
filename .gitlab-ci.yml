@@ -1,3 +1,4 @@
+#image: ruby:2.4.2
 image: docker:latest
 
 stages:
@@ -10,6 +11,10 @@ stages:
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
   VERSION: '1.1'
+
+#before_script:
+#  - cd reddit
+#  - bundle install
 
 build_job:
   stage: build
