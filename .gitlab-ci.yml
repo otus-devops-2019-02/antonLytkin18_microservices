@@ -54,6 +54,7 @@ staging:
   stage: stage
   when: manual
   script:
+    - which ssh-agent || (apk --update add openssh-client)
     - eval $(ssh-agent -s)
     - ssh-add <(echo "$SSH_PRIVATE_KEY")
     - ssh -o "StrictHostKeyChecking=no" appuser@$STAGING_IP "sudo docker rm -f reddit && sudo docker run --name reddit -d -p 9292:9292 $DOCKER_HUB_USERNAME/otus-reddit:$VERSION"
