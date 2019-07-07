@@ -72,3 +72,25 @@ $ docker run -d --network=reddit -p 9292:9292 -e POST_SERVICE_HOST=post_another 
 $ docker volume create reddit_db
 $ docker run -d --network=reddit --network-alias=post_db_another --network-alias=comment_db_another -v reddit_db:/data/db mongo:latest
 ```` 
+
+### Домашнее задание №15
+
+1. Для изменения префикса сущностей при запуске контейнеров с помощью `docker-compose`, необходимо выполнить команду:
+
+`$ docker-compose -p my_reddit up -d`
+
+Однако следует помнить, что остановка запущенных контейнеров должна производиться с указанием того же префикса.
+
+Иначе `docker-compose` будет пытаться найти контейнеры в сетях, имеющих префикс по умолчанию:
+
+`$ docker-compose -p my_reddit down`
+
+2. Чтобы иметь возможность редактирования кода, необходимо в `docker-compose.override.yml` добавить соответствия томов для каждого из инстансов:
+````dockerfile
+volumes:
+  - ./ui:/app
+````
+3. Для запуска `puma` в режиме отладки, необходимо для каждого инстанса добавить конструкцию `command` в `docker-compose.override.yml`:
+````dockerfile
+command: ["puma", "--debug", "-w", "2"]
+````
