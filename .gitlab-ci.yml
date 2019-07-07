@@ -18,7 +18,10 @@ variables:
 
 build_job:
   stage: build
+#  services:
+#    - mongo:latest
   script:
+#    - ruby simpletest.rb
     - docker build -t reddit:$VERSION reddit/
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
     - docker tag reddit:$VERSION $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
