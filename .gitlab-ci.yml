@@ -10,7 +10,6 @@ stages:
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
   VERSION: '1.1'
-  DOCKER_HUB_USERNAME: antonlytkin
 
 before_script:
   - cd reddit
@@ -20,7 +19,7 @@ build_job:
   stage: build
   script:
     - docker build -t reddit:$VERSION reddit/
-    - docker login -u $DOCKER_HUB_USERNAME -p $CI_REGISTRY_PASSWORD
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
     - docker tag reddit:$VERSION $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
     - docker push $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
 
