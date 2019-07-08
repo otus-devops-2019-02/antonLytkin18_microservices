@@ -1,0 +1,82 @@
+#image: ruby:2.4.2
+image: docker:latest
+
+stages:
+  - build
+  - test
+  - review
+  - stage
+  - production
+
+variables:
+  DATABASE_URL: 'mongodb://mongo/user_posts'
+  VERSION: '1.1'
+
+#before_script:
+#  - cd reddit
+#  - bundle install
+
+build_job:
+  stage: build
+#  services:
+#    - mongo:latest
+  script:
+#    - ruby simpletest.rb
+    - docker build -t reddit:$VERSION reddit/
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+    - docker tag reddit:$VERSION $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+    - docker push $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+
+test_unit_job:
+  stage: test
+  script:
+    - docker run --name reddit_unit_test -d $DOCKER_HUB_USERNAME/otus-reddit:$VERSION
+    - docker exec -i reddit_unit_test ruby -Creddit simpletest.rb
+    - docker rm -f reddit_unit_test
+
+test_integration_job:
+  stage: test
+  script:
+    - echo 'Testing 2'
+
+deploy_dev_job:
+  stage: review
+  script:
+    - echo 'Deploy'
+  environment:
+    name: dev
+    url: http://dev.example.com
+
+branch_review:
+  stage: review
+  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.example.com
+  only:
+    - branches
+  except:
+    - master
+
+staging:
+  stage: stage
+  when: manual
+  script:
+    - which ssh-agent || (apk --update add openssh-client)
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | ssh-add -
+    - ssh -o "StrictHostKeyChecking=no" docker-user@$STAGING_IP "sudo docker rm -f reddit || true && sudo docker run --name reddit -d -p 9292:9292 $DOCKER_HUB_USERNAME/otus-reddit:$VERSION"
+  environment:
+    name: staging
+    url: http://$STAGING_IP:9292
+
+production:
+  stage: production
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: production
+    url: https://example.com
