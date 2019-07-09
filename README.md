@@ -150,3 +150,43 @@ STAGING_IP
 ````
 
 9. При каждом пуше будет запущена сборка `docker`-образа и по требованию деплой окружения `stage`.
+
+### Домашнее задание №17
+
+1. Создадим правила файрвола и инстанс в GCP, после чего подключимся к удаленному окружению:
+````bash
+$ gcloud compute firewall-rules create prometheus-default --allow tcp:9090
+$ gcloud compute firewall-rules create puma-default --allow tcp:9292
+$ export GOOGLE_PROJECT=docker-245017
+$ docker-machine create --driver google \
+      --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts \
+      --google-machine-type n1-standard-1 \
+      --google-zone europe-west1-b \
+      docker-host
+$ eval $(docker-machine env docker-host)
+````
+
+2. Соберем образ `mongodb-exporter`:
+````bash
+$ git clone https://github.com/percona/mongodb_exporter.git && cd mongodb_exporter/ && make docker
+$ cd ../ rm -rf mongodb_exporter/
+````
+
+3. Соберем образ `blackbox-exporter`:
+````bash
+$ docker build -t $USER_NAME/blackbox-exporter monitoring/blackbox-exporter
+````
+
+4. Соберем образ `prometheus`:
+````bash
+$ export USER_NAME=antonlytkin
+$ docker build -t $USER_NAME/prometheus monitoring/prometheus
+````
+
+5. Запустим контейнеры:
+````bash
+$ cd docker/ && docker-compose up -d
+
+````
+
+6. Образы хранятся в [DockerHub'е](https://cloud.docker.com/u/antonlytkin/).
