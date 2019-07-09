@@ -1,9 +1,0 @@
-{
-  "project_id": "docker-245017",
-  "image_family": "docker-base",
-  "source_image_family": "ubuntu-1604-lts",
-  "ssh_username": "appuser",
-  "tags": "puma-server",
-  "machine_type": "f1-micro",
-  "zone": "europe-west1-d"
-}
