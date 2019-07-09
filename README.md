@@ -186,7 +186,6 @@ $ docker build -t $USER_NAME/prometheus monitoring/prometheus
 5. Запустим контейнеры:
 ````bash
 $ cd docker/ && docker-compose up -d
-
 ````
 
 6. Образы хранятся в [DockerHub'е](https://cloud.docker.com/u/antonlytkin/).
