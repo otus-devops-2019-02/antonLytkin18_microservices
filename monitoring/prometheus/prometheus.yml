@@ -55,6 +55,11 @@ scrape_configs:
       - targets:
         - 'post:5000'
 
+  - job_name: "docker"
+    static_configs:
+      - targets:
+          - "172.17.0.1:9323"
+
 rule_files:
   - "alerts.yml"
 

@@ -169,7 +169,7 @@ $ eval $(docker-machine env docker-host)
 2. Соберем образ `mongodb-exporter`:
 ````bash
 $ git clone https://github.com/percona/mongodb_exporter.git && cd mongodb_exporter/ && make docker
-$ cd ../ rm -rf mongodb_exporter/
+$ cd ../ && rm -rf mongodb_exporter/
 ````
 
 3. Соберем образ `blackbox-exporter`:
@@ -189,3 +189,71 @@ $ cd docker/ && docker-compose up -d
 ````
 
 6. Образы хранятся в [DockerHub'е](https://cloud.docker.com/u/antonlytkin/).
+
+### Домашнее задание №18
+
+1. Создадим необходимые переменные окружения, правила файрвола и инстанс в GCP, после чего подключимся к удаленному окружению:
+````bash
+$ export GOOGLE_PROJECT=docker-245017
+$ export USER_NAME=antonlytkin
+
+$ gcloud compute firewall-rules create cadvisor-default --allow tcp:8080
+$ gcloud compute firewall-rules create grafana-default --allow tcp:3000
+$ gcloud compute firewall-rules create alertmanager-default --allow tcp:9093
+
+$ docker-machine create --driver google \
+    --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts \
+    --google-machine-type n1-standard-1 \
+    --google-zone europe-west1-b \
+    docker-host
+
+$ eval $(docker-machine env docker-host)
+````
+
+2. Соберем необходимые образы:
+````bash
+$ docker build -t $USER_NAME/alertmanager monitoring/alertmanager
+$ docker build -t $USER_NAME/blackbox-exporter monitoring/blackbox-exporter
+
+$ git clone https://github.com/percona/mongodb_exporter.git && cd mongodb_exporter/ && make docker
+$ cd ../ && rm -rf mongodb_exporter/
+````
+
+3. Для того, чтобы получать метрики от `docker`'а напрямую, необходимо подключиться к удаленной машине и создать файл
+`/etc/docker/daemon.json` со следующим содержимым:
+
+````json
+{
+  "metrics-addr" : "0.0.0.0:9323",
+  "experimental" : true
+}
+
+````
+
+После чего перезагрузить `docker`:
+
+`$ service docker restart`
+
+4. Для того, чтобы `prometheus` мог отслеживать метрики от `docker`'а, необходимо добавить строки в `prometheus.yml`:
+
+````yaml
+  - job_name: "docker"
+    static_configs:
+      - targets:
+          - "172.17.0.1:9323"
+````
+
+После чего пересобрать образ `prometheus`'а:
+
+`$ docker build -t $USER_NAME/prometheus monitoring/prometheus`
+
+5. Для `grafana` был импортирован `dashboard`, работающий с метриками `docker`'а:
+
+`monitoring/grafana/dashboards/DockerEngineMetrics.json`
+
+6. Запустим контейнеры с микросервисами и мониторингом:
+````bash
+$ cd docker/ && docker-compose up -d && docker-compose -f docker-compose-monitoring.yml up -d
+````
+
+7. Собранные образы хранятся в [DockerHub'е](https://cloud.docker.com/u/antonlytkin/).
