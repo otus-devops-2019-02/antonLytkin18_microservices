@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   prometheus:
-    image: ${USERNAME}/prometheus
+    image: ${USER_NAME}/prometheus
     ports:
       - '9090:9090'
     volumes:
@@ -37,7 +37,7 @@ services:
       - back_net
 
   blackbox-exporter:
-    image: ${USERNAME}/blackbox-exporter
+    image: ${USER_NAME}/blackbox-exporter
     command:
       - '--config.file=/etc/blackbox/blackbox.yml'
     networks:
