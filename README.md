@@ -257,3 +257,49 @@ $ cd docker/ && docker-compose up -d && docker-compose -f docker-compose-monitor
 ````
 
 7. Собранные образы хранятся в [DockerHub'е](https://cloud.docker.com/u/antonlytkin/).
+
+### Домашнее задание №19
+
+1. Создадим необходимые переменные окружения, правила файрвола и инстанс в GCP, после чего подключимся к удаленному окружению:
+````bash
+$ export GOOGLE_PROJECT=docker-245017
+$ export USER_NAME=antonlytkin
+
+$ docker-machine create --driver google \
+      --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts \
+      --google-machine-type n1-standard-1 \
+      --google-open-port 5601/tcp \
+      --google-open-port 9292/tcp \
+      --google-open-port 9411/tcp \
+      logging
+
+$ eval $(docker-machine env logging)
+````
+
+2. Соберем необходимые образы:
+````bash
+$ for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
+$ docker build -t $USER_NAME/fluentd logging/fluentd
+
+````
+
+3. Запустим контейнеры с микросервисами и логированием:
+`$ cd docker/ && docker-compose -f docker-compose-logging.yml up -d && docker-compose up -d`
+
+4. Для парсинга неструктурированного лога необходимо добавить `grok`-шаблон в конфигурацию `fluentd`, после чего пересобрать образ:
+
+````apacheconfig
+<filter service.ui>
+  @type parser
+  format grok
+  grok_pattern service=%{WORD:service} \| event=%{WORD:event} \| path=%{GREEDYDATA:path} \| request_id=%{GREEDYDATA:request_id} \| remote_addr=%{IPORHOST:remote_addr} \| method=%{GREEDYDATA:method} \| response_status=%{POSINT:response_status}
+  key_name message
+  reserve_data true
+</filter>
+````
+
+5. Проблема в долгих запросах заключалась в [трехсекундном ожидании](https://github.com/Artemmkin/bugged-code/commit/e16d0e6bfec61a04fc38734af8e0466ed6e64e76#diff-b812ef7c4f4f2a47d86f2f85a08c9563R167) ответа от сервиса `post`:
+
+````ruby
+time.sleep(3)
+````
