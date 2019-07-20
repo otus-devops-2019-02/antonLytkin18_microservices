@@ -303,3 +303,22 @@ $ docker build -t $USER_NAME/fluentd logging/fluentd
 ````ruby
 time.sleep(3)
 ````
+
+### Домашнее задание №20
+
+1. После прохождения туториала [Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way) необходимо запустить
+`deployment`'ы:
+````bash
+$ kubectl apply -f kubernetes/reddit/mongo-deployment.yml
+$ kubectl apply -f kubernetes/reddit/post-deployment.yml
+$ kubectl apply -f kubernetes/reddit/comment-deployment.yml
+$ kubectl apply -f kubernetes/reddit/ui-deployment.yml
+````
+
+2. В качестве тестирования доступности микросервиса `ui`, необходимо выполнить команды:
+````bash
+$ POD_NAME=$(kubectl get pods -l app=ui -o jsonpath="{.items[0].metadata.name}")
+$ kubectl port-forward $POD_NAME 8080:9292
+````
+
+Сервис должен быть доступен по ссылке: http://localhost:8080/
