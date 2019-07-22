@@ -322,3 +322,44 @@ $ kubectl port-forward $POD_NAME 8080:9292
 ````
 
 Сервис должен быть доступен по ссылке: http://localhost:8080/
+
+### Домашнее задание №21
+
+1. Для создания `kubernetes`-кластера в `GKE`, необходимо выполнить команду:
+
+````bash
+$ cd kubernetes/terraform/ && terraform init && terraform apply
+````
+
+2. Переключим контекст `kubectl` на созданный кластер в `GKE`:
+````bash
+$ gcloud container clusters get-credentials my-gke-cluster --zone us-central1-a --project docker-245017
+````
+
+3. Добавим `namespace` и применим конфигурацию:
+````bash
+$ cd ../../
+$ kubectl apply -f kubernetes/reddit/dev-namespace.yml
+$ kubectl apply -n dev -f kubernetes/reddit/
+````
+
+4. Получим `ip` и `port` ноды, на котором запущено приложение:
+````bash
+$ kubectl get nodes -o wide
+$ kubectl describe service ui -n dev | grep NodePort
+````
+
+5. Для доступа к `kubernetes-dashboard` выполним команду:
+````bash
+$ kubectl proxy
+````
+
+Затем перейдем по ссылке:
+
+http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+
+6. Для получения токена авторизации в `kubernetes-dashboard`, необходимо выполнить:
+````bash
+$ kubectl -n kube-system get secret | grep kubernetes-dashboard-token
+$ kubectl -n kube-system describe secrets kubernetes-dashboard-token-275cf | grep token:
+````
