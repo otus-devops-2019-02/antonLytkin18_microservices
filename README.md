@@ -363,3 +363,29 @@ http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-da
 $ kubectl -n kube-system get secret | grep kubernetes-dashboard-token
 $ kubectl -n kube-system describe secrets kubernetes-dashboard-token-275cf | grep token:
 ````
+
+### Домашнее задание №22
+
+1. Перед применением конфигурации необходимо включить `Network Policy` в `GKE`:
+>Конфигурация типа `NetworkPolicy` не работает с типом ноды `g1-small`
+````bash
+$ gcloud beta container clusters update my-gke-cluster --zone=us-central1-a --update-addons=NetworkPolicy=ENABLED
+$ gcloud beta container clusters update my-gke-cluster --zone=us-central1-a --enable-network-policy
+````
+
+2. Создадим диск:
+````bash
+$ gcloud compute disks create --size=25GB --zone=us-central1-a reddit-mongo-disk
+````
+
+3. Сгенерируем `tls`-сертификат и приватный ключ, затем вставим их содержимое в конфигурацию `kubernetes/reddit/ui-secret.yml`:
+````bash
+$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=35.241.45.81"
+$ cat tls.crt | base64
+$ cat tls.key | base64
+````
+4. Добавим `namespace` и применим конфигурацию:
+````bash
+$ kubectl apply -f kubernetes/reddit/dev-namespace.yml
+$ kubectl apply -n dev -f kubernetes/reddit/
+````
