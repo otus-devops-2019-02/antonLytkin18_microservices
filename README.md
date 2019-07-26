@@ -278,7 +278,7 @@ $ eval $(docker-machine env logging)
 
 2. Соберем необходимые образы:
 ````bash
-$ for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
+$ for i in ui post comment; do cd src/$i; bash docker_build.sh; cd -; done
 $ docker build -t $USER_NAME/fluentd logging/fluentd
 
 ````
