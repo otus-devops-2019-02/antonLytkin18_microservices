@@ -36,6 +36,8 @@ release:
   script:
     - setup_docker
     - release
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   only:
     - master
 
