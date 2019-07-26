@@ -11,3 +11,8 @@ variable zone {
   description = "Zone"
   default     = "us-central1-a"
 }
+
+variable enable_legacy_abac {
+  description = "Legacy rights"
+  default     = "false"
+}
