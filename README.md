@@ -278,7 +278,7 @@ $ eval $(docker-machine env logging)
 
 2. Соберем необходимые образы:
 ````bash
-$ for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
+$ for i in ui post comment; do cd src/$i; bash docker_build.sh; cd -; done
 $ docker build -t $USER_NAME/fluentd logging/fluentd
 
 ````
@@ -388,4 +388,79 @@ $ cat tls.key | base64
 ````bash
 $ kubectl apply -f kubernetes/reddit/dev-namespace.yml
 $ kubectl apply -n dev -f kubernetes/reddit/
+````
+
+### Домашнее задание №23
+
+1. Для создания `kubernetes`-кластера в `GKE`, необходимо выполнить команду:
+````shell script
+$ cd kubernetes/terraform/ && terraform init && terraform apply
+````
+
+2. Переключим контекст `kubectl` на созданный кластер в `GKE`:
+````shell script
+$ gcloud container clusters get-credentials my-gke-cluster --zone us-central1-a --project docker-245017
+````
+
+3. Установим конфигурацию пользователя для `tiller`'а и запустим его:
+````shell script
+$ kubectl apply -f kubernetes/tiller.yml
+$ helm init --service-account tiller
+````
+
+4. Установим `gitlab`:
+> В случае, если `chart` отсутствует, необходимо выполнить:
+````shell script
+$ helm repo add gitlab https://charts.gitlab.io
+$ cd kubernetes/Charts/
+$ helm fetch gitlab/gitlab-omnibus --version 0.1.37 --untar
+````
+> Если `chart` уже получен, нужно его установить:
+````shell script
+$ cd gitlab-omnibus/
+$ helm install --name gitlab . -f values.yaml
+````
+
+5. Пропишем `ip`-адрес для `ingress`'а `gitlab`'а в `/etc/hosts`: 
+````shell script
+$ echo "34.68.100.30 gitlab-gitlab staging production antonlytkin-ui-feature-3 antonlytkin-post-feature-3 antonlytkin-comment-feature-3" >> /etc/hosts
+````
+
+> Для просмотра `ip`, по которому должен быть доступен `gitlab`, необходимо выполнить:
+````shell script
+$ kubectl get ingresses -n nginx-ingress nginx
+````
+
+6. После регистрации в `gitlab`'е и создания новой группы, необходимо прописать переменные окружения с логином / паролем от `Docker Hub`'а для деплоя:
+> Переменные не должны быть приватными
+````dotenv
+CI_REGISTRY_USER = antonlytkin
+CI_REGISTRY_PASSWORD = *******
+````
+
+7. Создадим репозиторий приложения:
+````shell script
+$ cd kubernetes/Charts/ && git init
+$ git remote add origin http://gitlab-gitlab/antonlytkin/reddit-deploy.git
+$ git add . && git reset -- gitlab-omnibus
+$ git commit -m "Init" && git push origin master
+````
+
+8. Создадим репозитории для каждого из микросервисов:
+````shell script
+$ cd src/ui/ && git init
+$ git remote add origin http://gitlab-gitlab/antonlytkin/ui.git
+$ git add .
+$ git commit -m "Init"
+$ git checkout -b master && git push origin master
+$ git checkout -b feature/3 && git push origin feature/3
+````
+
+> Далее необходимо перезапустить `pipeline`'ы в каждом из репозиториев
+
+9. Почистим репозиторий и удалим кластер:
+
+````shell script
+$ rm -rf src/ui/.git src/post/.git src/comment/.git kubernetes/Charts/.git
+$ cd kubernetes/terraform/ && terraform destroy
 ````

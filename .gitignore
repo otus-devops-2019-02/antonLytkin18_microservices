@@ -9,3 +9,5 @@ variables.json
 #third-party ansible roles:
 
 geerlingguy.docker
+
+Gitlab_ci/
