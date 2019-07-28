@@ -464,3 +464,85 @@ $ git checkout -b feature/3 && git push origin feature/3
 $ rm -rf src/ui/.git src/post/.git src/comment/.git kubernetes/Charts/.git
 $ cd kubernetes/terraform/ && terraform destroy
 ````
+
+### Домашнее задание №24
+
+1. Для создания `kubernetes`-кластера в `GKE`, необходимо выполнить команду:
+````shell script
+$ cd kubernetes/terraform/ && terraform init && terraform apply
+````
+
+2. Переключим контекст `kubectl` на созданный кластер в `GKE`:
+````shell script
+$ gcloud container clusters get-credentials my-gke-cluster --zone us-central1-a --project docker-245017
+````
+
+3. Установим конфигурацию пользователя для `tiller`'а и запустим его:
+````shell script
+$ kubectl apply -f kubernetes/tiller.yml
+$ helm init --service-account tiller
+````
+
+4. Установим `nginx`:
+````shell script
+$ helm install stable/nginx-ingress --name nginx
+````
+
+5. Пропишем `ip`-адрес сервиса, по которому доступен `nginx` в `/etc/hosts`: 
+````shell script
+$ echo "35.226.19.239 reddit reddit-prometheus reddit-grafana reddit-non-prod production reddit-kibana staging prod" >> /etc/hosts
+````
+
+> Для получения `ip`, по которому должен быть доступен `nginx`, необходимо выполнить:
+````shell script
+$ kubectl get svc nginx-nginx-ingress-controller
+````
+
+6. Установим `prometheus`:
+````shell script
+$ cd kubernetes/Charts && helm fetch --untar stable/prometheus
+$ cd prometheus/ && helm upgrade prom . -f custom_values.yaml --install
+````
+
+7. Запустим окружения с приложением:
+````shell script
+$ cd ../
+$ helm dep build reddit
+$ helm upgrade reddit-test ./reddit --install
+$ helm upgrade production --namespace production ./reddit --install
+$ helm upgrade staging --namespace staging ./reddit --install
+````
+
+8. Установим `grafana`:
+````shell script
+{
+helm upgrade --install grafana stable/grafana \
+  --set adminPassword="admin" \
+  --set service.type="NodePort" \
+  --set ingress.enabled="true" \
+  --set ingress.hosts="{reddit-grafana}"
+}
+````
+
+9. `Dashboard`, отображающий метрики в разрезе окружения, расположен по пути:
+
+`kubernetes/grafana/dashboards/ui_service.json`
+
+> 
+
+10. Пометим `node`'у, на которой будет расположен `ElasticSearch` и установим манифесты:
+````shell script
+$ kubectl label node gke-my-gke-cluster-my-node-pool-ea2a05dd-3kb9 elastichost=true 
+$ kubectl apply -f ./efk
+````
+
+11. Установим `kibana`:
+````shell script
+{
+helm upgrade --install kibana stable/kibana \
+  --set ingress.enabled="true" \
+  --set ingress.hosts="{reddit-kibana}" \
+  --set env.ELASTICSEARCH_URL="http://elasticsearch-logging:9200" \
+  --version 0.1.1
+}
+````
